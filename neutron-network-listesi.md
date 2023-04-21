@@ -37,3 +37,6 @@ curl --request GET \
 ```
 
 ![image](https://user-images.githubusercontent.com/261946/233736957-e5b48b94-7b53-4289-bf04-61289452d4e7.png)
+
+#### Kaynak
+- https://wiki.openstack.org/wiki/Neutron/APIv2-specification#List_Networks
