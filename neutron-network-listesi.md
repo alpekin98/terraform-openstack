@@ -42,3 +42,4 @@ curl --request GET \
 - https://wiki.openstack.org/wiki/Neutron/APIv2-specification#List_Networks
 - https://docs.openstack.org/ocata/user-guide/sdk-neutron-apis.html
 - https://docs.openstack.org/api-ref/network/v2/index.html
+- https://www.ibm.com/docs/el/powervc/1.4.4?topic=apis-supported-openstack-networks-neutron
