@@ -40,3 +40,4 @@ curl --request GET \
 
 #### Kaynak
 - https://wiki.openstack.org/wiki/Neutron/APIv2-specification#List_Networks
+- https://docs.openstack.org/ocata/user-guide/sdk-neutron-apis.html
