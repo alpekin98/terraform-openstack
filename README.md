@@ -63,24 +63,3 @@ Cevabın HEADERS kısmında `X-Subject-Token`anahtarında TOKEN bilgisini görec
 ![image](https://user-images.githubusercontent.com/261946/233720396-e279aeca-a764-4941-9f46-2ec4f6027944.png)
 
 ![image](https://user-images.githubusercontent.com/261946/233718109-2c7fe7b6-27ad-4f93-a6e8-684d11f63f51.png)
-
----
-
-### COMPUTE Hizmetinden Sunucu Listesini Çekmek
-
-TOKEN bilgisini NOVA'dan aldıktan sonra `http://vipcontroller:8774/v2.1/servers` adresinden aşağıdaki istekle sunucu listesini çekebiliriz:
-
-```shell
-curl --request GET \
-  --url http://vipcontroller:8774/v2.1/servers \
-  --header 'X-Auth-Token: gAAAAABkQueeOLDPn2.....'
-```
-
-![image](https://user-images.githubusercontent.com/261946/233722622-8da87f60-e19b-46fe-b609-53c64c517548.png)
-
-#### Sunucu Listesini Ayrıntılı Çekmek
-
-Sunucu listelerini çektiğimiz adres (`http://vipcontroller:8774/v2.1/servers`) küçük bir farkla (`/detail`) şu şekilde gelecektir:
-
-![image](https://user-images.githubusercontent.com/261946/233725139-bd13f109-75c1-439d-837b-34c71a0e10b5.png)
-
