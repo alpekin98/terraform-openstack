@@ -22,3 +22,6 @@ Silme işleminin başladığını web arayüzünde görebiliyoruz:
 Ve artık VM silindi:
 
 ![image](https://user-images.githubusercontent.com/261946/233726307-916d8f40-886f-4a5b-ad92-2e0a884d859b.png)
+
+#### Kaynak
+- https://docs.openstack.org/ocata/user-guide/cli-delete-an-instance.html
