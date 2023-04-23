@@ -1,5 +1,6 @@
 # Tennant (Projeler) Listesini Çekmek
 
+Tennat bilgisi OpenStack'de proje'ye denk gelir.
 
 ```shell
 curl --request GET \
