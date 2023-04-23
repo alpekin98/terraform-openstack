@@ -21,7 +21,7 @@ Fark, bu kaynak türlerinin yönettiği güvenlik gruplarının kullanım amaçl
 
 ### openstack_networking_secgroup_v2
 
-```
+```terraform
 resource "openstack_networking_secgroup_v2" "web_security_group" {
   name = "cemtopkaya_security_group"
   description = "Asagidaki guvenlik kurallariyla trafik yonlendirilecek"
@@ -46,7 +46,7 @@ resource "openstack_networking_secgroup_v2" "web_security_group" {
 
 ### openstack_compute_security_group_v2
 
-```
+```terraform
 resource "openstack_compute_security_group_v2" "default" {
   name        = "default"
   description = "Default security group"
@@ -70,3 +70,79 @@ resource "openstack_compute_security_group_rule_v2" "egress_tcp_rule" {
   ethertype       = "IPv4"
 }
 ```
+
+---
+
+# Örnekler
+
+## Güvenlik Grupları Oluşturmak
+
+```terraform
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    openstack = {
+      source  = "terraform-provider-openstack/openstack"
+      version = "1.51.0"
+    }
+  }
+}
+
+# Provider tanımlaması
+provider "openstack" {
+  # OpenStack credential ayrıntıları
+
+  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-api-erisimi.md
+  auth_url = "http://controller:5000/v3/"
+  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-api-erisimi.md#kullan%C4%B1c%C4%B1-bilgileri
+  user_name = "cemtopkaya"
+  password = "q1w2e3r4"
+  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-tennant.md
+  tenant_name = "osmtest"
+  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-region.md
+  region = "RegionOne"
+}
+
+# Define security group for HTTP traffic
+resource "openstack_networking_secgroup_v2" "cem_http_secgroup" {
+  name = "cem_http_secgroup"
+  description = "Allow HTTP traffic"
+}
+
+# Define security group for SSH traffic
+resource "openstack_networking_secgroup_v2" "cem_ssh_secgroup" {
+  name = "cem_ssh_secgroup"
+  description = "Allow SSH traffic"
+}
+
+# Define security group rule to allow incoming HTTP traffic
+resource "openstack_networking_secgroup_rule_v2" "cem_http_rule" {
+  direction = "ingress"
+  ethertype = "IPv4"
+  port_range_min = 80
+  port_range_max = 80
+  protocol = "tcp"
+  security_group_id = openstack_networking_secgroup_v2.cem_http_secgroup.id
+}
+
+# Define security group rule to allow incoming SSH traffic
+resource "openstack_networking_secgroup_rule_v2" "cem_ssh_rule" {
+  direction = "ingress"
+  ethertype = "IPv4"
+  port_range_min = 22
+  port_range_max = 22
+  protocol = "tcp"
+  security_group_id = openstack_networking_secgroup_v2.cem_ssh_secgroup.id
+}
+```
+
+Yukarıdaki kodun çıktısı:
+
+![image](https://user-images.githubusercontent.com/261946/233836141-12b97067-4d8d-4e57-bfe6-ff4d25a11ca2.png)
+
+![image](https://user-images.githubusercontent.com/261946/233836155-3493c40d-287a-4b3a-a0a7-93fdf11dfabc.png)
+
+![image](https://user-images.githubusercontent.com/261946/233836162-7a447c4d-13d2-4ed9-8933-fedbc32f2ffe.png)
+
+
+
