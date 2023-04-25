@@ -1,0 +1,52 @@
+resource "openstack_compute_security_group_v2" "cem_compute_security_group" {
+  name        = "cem_compute_security_group"
+  description = "cem_compute_security_group security group"
+  tenant_id   = "cd6c5b55cee546c6811fb6c622b81aed"
+}
+
+resource "openstack_compute_security_group_rule_v2" "ingress_rule" {
+  direction      = "ingress"
+  security_group_id = openstack_compute_security_group_v2.cem_compute_security_group.id
+  remote_group_id   = "01a3541a-51a0-4bd7-b2d4-a9a9eb19677c"
+  ethertype        = "IPv6"
+}
+
+resource "openstack_compute_security_group_rule_v2" "egress_tcp_rule" {
+  direction       = "egress"
+  security_group_id  = openstack_compute_security_group_v2.cem_compute_security_group.id
+  protocol        = "tcp"
+  port_range_min  = 1
+  port_range_max  = 65535
+  remote_ip_prefix = "0.0.0.0/0"
+  ethertype       = "IPv4"
+}
+
+resource "openstack_compute_security_group_rule_v2" "egress_udp_rule" {
+  direction       = "egress"
+  security_group_id  = openstack_compute_security_group_v2.cem_compute_security_group.id
+  protocol        = "udp"
+  port_range_min  = 1
+  port_range_max  = 65535
+  remote_ip_prefix = "0.0.0.0/0"
+  ethertype       = "IPv4"
+}
+
+resource "openstack_compute_security_group_rule_v2" "ingress_tcp_rule" {
+  direction       = "ingress"
+  security_group_id  = openstack_compute_security_group_v2.cem_compute_security_group.id
+  protocol        = "tcp"
+  port_range_min  = 1
+  port_range_max  = 65535
+  remote_ip_prefix = "0.0.0.0/0"
+  ethertype       = "IPv4"
+}
+
+resource "openstack_compute_security_group_rule_v2" "ingress_udp_rule" {
+  direction       = "ingress"
+  security_group_id  = openstack_compute_security_group_v2.cem_compute_security_group.id
+  protocol        = "udp"
+  port_range_min  = 1
+  port_range_max  = 65535
+  remote_ip_prefix = "0.0.0.0/0"
+  ethertype       = "IPv4"
+}
