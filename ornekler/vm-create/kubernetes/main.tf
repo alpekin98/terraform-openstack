@@ -26,7 +26,7 @@ provider "openstack" {
 variable "packages" {
   description = "List of packages to install"
   type        = list(string)
-  default     = ["apt-transport-https","curl","ca-certificates","software-properties-common","docker.io", "kubelet=1.24.0", "kubeadm=1.24.0", "kubectl"]
+  default     = ["apt-transport-https","curl","ca-certificates","software-properties-common","docker.io", "kubelet=1.23.17", "kubeadm=1.23.17", "kubectl"]
 }
 
 
@@ -104,7 +104,7 @@ Worker Düğüm (Node) Paketleri:
               systemctl enable kubelet.service
               systemctl start kubelet.service
 
-              # Swap kapatma: Kubernetes cluster'i çaliştirmak için swap'in devre dişi birakilmasi gerekmektedir.
+              # Swap kapatma: Kubernetes cluster'i çaliştirmak için swap'in devre dişi birakilmasi gerekmektedir. Swap RAM yetmediğinde hafızayı kullanır. Yavaştır ve önerilmez.
               swapoff -a
               sed -i '/ swap / s/^/#/' /etc/fstab
 
