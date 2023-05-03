@@ -132,8 +132,11 @@ Worker Düğüm (Node) Paketleri:
               # Pod network kurulumu: 
               # Kubernetes cluster'inizi oluşturduktan sonra, pod network'ünü kurmaniz gereklidir. 
               # Pod network, cluster içerisindeki container'larin birbirleriyle iletişim kurmasini sağlar. 
-              # Flannel pod network'ünü kurmak için :
-              kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+              # Flannel pod network'ünü kuran yaml dosyasını indirmek için :
+              wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+              
+              # CNI kurmak için 
+              kubectl apply -f kube-flannel.yml
 
               useradd -m -s /bin/bash ubuntu
               echo "ubuntu:test123" | chpasswd
