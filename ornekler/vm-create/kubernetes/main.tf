@@ -234,11 +234,16 @@ resource "openstack_compute_instance_v2" "slave1_instance" {
               cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
               chown $(id -u):$(id -g) $HOME/.kube/config
 
+
+
               # Pod network kurulumu: 
               # Kubernetes cluster'inizi oluşturduktan sonra, pod network'ünü kurmaniz gereklidir. 
               # Pod network, cluster içerisindeki container'larin birbirleriyle iletişim kurmasini sağlar. 
-              # Flannel pod network'ünü kurmak için :
-              kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+              # Flannel pod network'ünün yaml dosyası  :
+              wget  https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+              flannel yaml dosyasının aplly etmek için 
+              kubectl apply -f kube-flannel.yml
 
               useradd -m -s /bin/bash ubuntu
               echo "ubuntu:test123" | chpasswd
