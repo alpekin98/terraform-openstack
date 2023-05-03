@@ -1,3 +1,8 @@
+locals {
+  metadata_default = { "managed-by-terraform" = true }
+  tags_default = [ "managed-by-terraform=true" ]
+}
+
 terraform {
   required_version = ">= 1.0.0"
   required_providers {
@@ -29,7 +34,8 @@ variable "packages" {
   default     = ["apt-transport-https","curl","ca-certificates","software-properties-common","docker.io", "kubelet=1.23.17", "kubeadm=1.23.17", "kubectl"]
 }
 
-
+# https://training.galaxyproject.org/training-material/topics/admin/tutorials/terraform/tutorial.html#adding-an-instance
+# http://man.hubwiz.com/docset/Terraform.docset/Contents/Resources/Documents/docs/providers/openstack/r/compute_instance_v2.html
 resource "openstack_compute_instance_v2" "master_instance" {
   name = "k8s_master"
   image_name = "xenial"
@@ -39,7 +45,9 @@ resource "openstack_compute_instance_v2" "master_instance" {
   key_pair = "cemtopkaya_ssh_keys"
   security_groups = ["default"]
   availability_zone = "com110"
-
+  metadata          = merge(local.metadata_default, var.metadata)
+  tags              = concat(local.tags_default, var.tags)
+  
   network {
     name = "cinar-control"
     # name = "STO-control"
