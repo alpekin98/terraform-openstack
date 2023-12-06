@@ -1,0 +1,22 @@
+_id: req_133f75dad4f44e65b878c167708b9980
+type: Request
+parentId: wrk_ca7aeb4631784d9f925a6d089a477967
+modified: 1701771720869
+created: 1701771720869
+url: "{{ _.base_url }}/users"
+name: Returns a list of users.
+description: ""
+method: GET
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: -1701771720869
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
+segmentParams: []

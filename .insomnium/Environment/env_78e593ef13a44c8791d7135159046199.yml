@@ -1,0 +1,14 @@
+_id: env_78e593ef13a44c8791d7135159046199
+type: Environment
+parentId: env_3c1fb2590e265f04c122b88341cd7466dea9401e
+modified: 1701771720867
+created: 1701771720867
+name: OpenAPI env staging-api.example.com
+data:
+  scheme: http
+  base_path: ""
+  host: staging-api.example.com
+dataPropertyOrder: null
+color: null
+isPrivate: false
+metaSortKey: 1701771720867
