@@ -24,3 +24,4 @@ settingDisableRenderRequestBody: false
 settingEncodeUrl: true
 settingRebuildPath: true
 settingFollowRedirects: global
+segmentParams: []

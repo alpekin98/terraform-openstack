@@ -1,10 +1,10 @@
-_id: req_875a8f989b624706914fad78f46d03e5
+_id: req_49151b68b9414a6cbf99f941d439dd74
 type: Request
 parentId: fld_7bfdd328ca7a480dbee0cfc8f18a5a3d
-modified: 1683114190051
-created: 1683114168909
-url: http://{{ _.openstackdomain }}:9696/v2.0/security-groups
-name: Network -> Security Group Listesi - NEUTRON
+modified: 1701695207731
+created: 1701695122836
+url: http://{{ _.openstackdomain }}:5000/v3/users/
+name: VM Kullanıcıların Listesi (Ayrıntılı) - IDENTITY
 description: ""
 method: GET
 body: {}
@@ -15,7 +15,7 @@ headers:
     value: "{{ _['X-Subject-Token'] }}"
     description: ""
 authentication: {}
-metaSortKey: -1683112654414
+metaSortKey: -1683112654397.5938
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
