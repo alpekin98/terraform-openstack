@@ -1,0 +1,25 @@
+_id: req_dd80ae5fd0c44ba2a00069150aee18af
+type: Request
+parentId: fld_7bfdd328ca7a480dbee0cfc8f18a5a3d
+modified: 1683114307603
+created: 1683114299308
+url: http://{{openstackdomain}}:8774/v2.1/servers
+name: VM Sunuclar Listesi - COMPUTE
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - id: pair_c8c2075b71f64a569fb31c6b69659496
+    name: X-Auth-Token
+    value: "{{ _['X-Subject-Token'] }}"
+    description: ""
+authentication: {}
+metaSortKey: -1683112654396.8125
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

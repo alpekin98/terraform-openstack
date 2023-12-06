@@ -1,0 +1,26 @@
+_id: req_7bc311d3f0924b14ba62d5dab947bef0
+type: Request
+parentId: fld_7bfdd328ca7a480dbee0cfc8f18a5a3d
+modified: 1683114253422
+created: 1683114239128
+url: http://{{ _.openstackdomain
+  }}:8774/v2.1/servers/9ffb3c7a-8965-40ee-9ef6-7fad062692c3
+name: VM Silmek - COMPUTE
+description: ""
+method: DELETE
+body: {}
+parameters: []
+headers:
+  - id: pair_c8c2075b71f64a569fb31c6b69659496
+    name: X-Auth-Token
+    value: "{{ _['X-Subject-Token'] }}"
+    description: ""
+authentication: {}
+metaSortKey: -1683112654395.25
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

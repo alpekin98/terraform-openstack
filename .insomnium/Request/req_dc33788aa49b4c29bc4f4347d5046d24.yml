@@ -1,0 +1,50 @@
+_id: req_dc33788aa49b4c29bc4f4347d5046d24
+type: Request
+parentId: fld_7bfdd328ca7a480dbee0cfc8f18a5a3d
+modified: 1683114407955
+created: 1683114322986
+url: http://{{ _.openstackdomain }}:5000/v3/auth/tokens
+name: Kullanıcı TOKEN Bilgisi - NOVA
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+        "mimeType": "application/json",
+        "text": {
+            "auth": {
+                "identity": {
+                    "methods": [
+                        "password"
+                    ],
+                    "password": {
+                        "user": {
+                            "name": "cemtopkaya",
+                            "domain": {
+                                "id": "default"
+                            },
+                            "password": "q1w2e3r4"
+                        }
+                    }
+                }
+            }
+        }
+    }
+parameters: []
+headers:
+  - id: pair_c8c2075b71f64a569fb31c6b69659496
+    name: X-Auth-Token
+    value: "{{ _['X-Subject-Token'] }}"
+    description: ""
+  - name: Content-Type
+    value: application/json
+authentication: {}
+metaSortKey: -1683112654396.0312
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

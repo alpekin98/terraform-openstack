@@ -1,0 +1,43 @@
+_id: req_4019e5abc881404abb9045e87de42168
+type: Request
+parentId: fld_7bfdd328ca7a480dbee0cfc8f18a5a3d
+modified: 1683113303060
+created: 1683113027833
+url: http://{{ _.openstackdomain }}:35357/v3/auth/tokens
+name: Kullanıcı TOKEN Bilgisi - KEYSTONE
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+        "auth": {
+            "identity": {
+                "methods": [
+                    "password"
+                ],
+                "password": {
+                    "user": {
+                        "name": "cemtopkaya",
+                        "domain": {
+                            "name": "Default"
+                        },
+                        "password": "q1w2e3r4"
+                    }
+                }
+            }
+        }
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication: {}
+metaSortKey: -1683113027833
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

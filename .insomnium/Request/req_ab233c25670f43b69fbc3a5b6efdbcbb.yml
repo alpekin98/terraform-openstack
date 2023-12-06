@@ -1,0 +1,25 @@
+_id: req_ab233c25670f43b69fbc3a5b6efdbcbb
+type: Request
+parentId: fld_7bfdd328ca7a480dbee0cfc8f18a5a3d
+modified: 1683113570053
+created: 1683113533407
+url: http://{{ _.openstackdomain }}:9696/v2.0/subnets
+name: Subnet Listesi - NEUTRON
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - id: pair_96db72d4fc80420a88b65e3b240e44cb
+    name: X-Auth-Token
+    value: "{{ _['X-Subject-Token'] }}"
+    description: ""
+authentication: {}
+metaSortKey: -1683112654389
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

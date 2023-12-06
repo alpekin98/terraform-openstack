@@ -1,0 +1,25 @@
+_id: req_875a8f989b624706914fad78f46d03e5
+type: Request
+parentId: fld_7bfdd328ca7a480dbee0cfc8f18a5a3d
+modified: 1683114190051
+created: 1683114168909
+url: http://{{ _.openstackdomain }}:9696/v2.0/security-groups
+name: Network -> Security Group Listesi - NEUTRON
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - id: pair_c8c2075b71f64a569fb31c6b69659496
+    name: X-Auth-Token
+    value: "{{ _['X-Subject-Token'] }}"
+    description: ""
+authentication: {}
+metaSortKey: -1683112654414
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

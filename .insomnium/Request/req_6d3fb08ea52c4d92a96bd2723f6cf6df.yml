@@ -1,0 +1,25 @@
+_id: req_6d3fb08ea52c4d92a96bd2723f6cf6df
+type: Request
+parentId: fld_7bfdd328ca7a480dbee0cfc8f18a5a3d
+modified: 1683113474260
+created: 1683112654438
+url: http://{{openstackdomain}}:35357/v2.0/tenants
+name: Tennant Listesi - COMPUTE
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - id: pair_c8c2075b71f64a569fb31c6b69659496
+    name: X-Auth-Token
+    value: "{{ _['X-Subject-Token'] }}"
+    description: ""
+authentication: {}
+metaSortKey: -1683112654439
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
