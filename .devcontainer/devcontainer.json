@@ -1,0 +1,12 @@
+{
+  "workspaceFolder": "/workspace",
+  // "dockerFile": "./Dockerfile",
+  "image": "hashicorp/terraform",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "4ops.terraform"
+      ]
+    }
+  }
+}
