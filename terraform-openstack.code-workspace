@@ -1,0 +1,75 @@
+{
+  "folders": [
+    {
+      "name": "Terraform-Openstack",
+      "path": "/workspace"
+    }
+  ],
+  "extensions": {
+    "recommendations": [      
+      "ms-vscode-remote.vscode-remote-extensionpack",
+      "MS-vsliveshare.vsliveshare",
+      "4ops.terraform",
+      "mauve.terraform",
+      "ms-python.python",
+      "ms-python.debugpy",
+      "ms-python.pylint",
+      "ms-python.vscode-pylance",
+      "KevinRose.vsc-python-indent",
+      "donjayamanne.python-extension-pack",
+      "ms-python.autopep8",
+      "mhutchie.git-graph",
+      "Gruntfuggly.todo-tree",
+      "johnpapa.vscode-peacock",
+      "alefragnani.project-manager",
+      "ms-azuretools.vscode-docker",
+      "hanskre.markdown-execute"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug send_server_details.py",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "console": "integratedTerminal",
+        "args": "username password Development ramazan.tokay --log-level ERROR"
+      },
+      {
+        "name": "Debug check_user_resource_quota.py",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "console": "integratedTerminal",
+        "args": "username password Development ramazan.tokay --log-level ERROR"
+      },
+      {
+        "name": "Debug server_address.py",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "console": "integratedTerminal",
+        "args": "--openstack-username=username --openstack-password=password --openstack-project_name=Development --vm-name=Open5Gs-Test --log-level ERROR"
+      },
+      {
+        "name": "Python Debugger: Current File",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "console": "integratedTerminal"
+      }
+    ],
+    "compounds": []
+  },
+  "settings": {
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.autopep8",
+      "formatting.provider": "autopep8",
+      "languageServer": "Pylance",
+      "defaultInterpreterPath": "/usr/bin/python3",
+      "editor.formatOnType": true
+    },
+  }
+}
