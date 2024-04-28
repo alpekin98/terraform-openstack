@@ -26,7 +26,8 @@
       "johnpapa.vscode-peacock",
       "alefragnani.project-manager",
       "ms-azuretools.vscode-docker",
-      "hanskre.markdown-execute"
+      "hanskre.markdown-execute",
+      "mushan.vscode-paste-image"
     ]
   },
   "launch": {

@@ -2,56 +2,54 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/alpine
 {
 	"name": "Terraform Playground",
-  // "dockerFile": "./Dockerfile",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  // Uncomment the next line to run commands after the container is created.
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
-  "workspaceFolder": "/workspace",
-  "postCreateCommand": "pip install -r .devcontainer/requirements.txt && echo complete -C /usr/local/bin/terraform terraform >> ~/.bashrc",
-  // "initializeCommand": "",
+	// "dockerFile": "./Dockerfile",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	// Uncomment the next line to run commands after the container is created.
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+	"workspaceFolder": "/workspace",
+	"postCreateCommand": "pip install -r .devcontainer/requirements.txt && echo complete -C /usr/local/bin/terraform terraform >> ~/.bashrc",
+	// "initializeCommand": "",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
-
 	// Configure tool-specific properties.
 	// "customizations": {},
-
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
-  // "image": "hashicorp/terraform",
-  "customizations": {
-    "vscode": {
-      "settings": {
-        "[shellscript]": {
-          "files.eol": "\n"
-        }
-      },
-      "extensions": [
-        "erd0s.terraform-autocomplete",
-        "hashicorp.terraform",
-        "run-at-scale.terraform-doc-snippets",
-        "ms-vscode-remote.vscode-remote-extensionpack",
-        "MS-vsliveshare.vsliveshare",
-        "4ops.terraform",
-        "mauve.terraform",
-        "ms-python.python",
-        "ms-python.debugpy",
-        "ms-python.pylint",
-        "ms-python.vscode-pylance",
-        "KevinRose.vsc-python-indent",
-        "donjayamanne.python-extension-pack",
-        "ms-python.autopep8",
-        "mhutchie.git-graph",
-        "Gruntfuggly.todo-tree",
-        "johnpapa.vscode-peacock",
-        "alefragnani.project-manager",
-        "ms-azuretools.vscode-docker",
-        "hanskre.markdown-execute"
-      ]
-    }
-  }
+	// "image": "hashicorp/terraform",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"[shellscript]": {
+					"files.eol": "\n"
+				}
+			},
+			"extensions": [
+				"erd0s.terraform-autocomplete",
+				"hashicorp.terraform",
+				"run-at-scale.terraform-doc-snippets",
+				"ms-vscode-remote.vscode-remote-extensionpack",
+				"MS-vsliveshare.vsliveshare",
+				"4ops.terraform",
+				"mauve.terraform",
+				"ms-python.python",
+				"ms-python.debugpy",
+				"ms-python.pylint",
+				"ms-python.vscode-pylance",
+				"KevinRose.vsc-python-indent",
+				"donjayamanne.python-extension-pack",
+				"ms-python.autopep8",
+				"mhutchie.git-graph",
+				"Gruntfuggly.todo-tree",
+				"johnpapa.vscode-peacock",
+				"alefragnani.project-manager",
+				"ms-azuretools.vscode-docker",
+				"hanskre.markdown-execute",
+				"mushan.vscode-paste-image"
+			]
+		}
+	}
 }
