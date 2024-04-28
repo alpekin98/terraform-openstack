@@ -8,46 +8,80 @@ terraform {
   }
 }
 
-# Provider tanımlaması
 provider "openstack" {
-  # OpenStack credential ayrıntıları
+  auth_url     = var.openstack_auth_url
+  user_name    = var.openstack_username
+  password     = var.openstack_password
+  tenant_name  = var.openstack_tenant_name
+  region       = var.openstack_region
+}
 
-  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-api-erisimi.md
-  auth_url = "http://controller:5000/v3/"
-  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-api-erisimi.md#kullan%C4%B1c%C4%B1-bilgileri
-  user_name = "cemtopkaya"
-  password = "q1w2e3r4"
-  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-tennant.md
-  tenant_name = "osmtest"
-  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-region.md
+# OpenStack'te tanımlı ağları çeken kaynak
+# data "openstack_networking_network_v2" "all_networks" {}
+
+# OpenStack'te tanımlı alt ağları çeken kaynak
+# data "openstack_networking_subnets_v2" "all_subnets" {}
+# data "openstack_networking_subnet_ids_v2" "all_subnets" {}
+# data "openstack_networking_subnet_v2" "all_subnets" {}
+
+# OpenStack'te tanımlı ağı çeken kaynak
+data "openstack_networking_network_v2" "aranan_ag" {
+  mtu=1450
+  name="cnr-data2"
+}
+
+# İlk ağı ekrana yazan çıktı
+output "aranan_cnr-data2_ağı" {
+  value = {
+    network = data.openstack_networking_network_v2.aranan_ag
+  }
+}
+
+# OpenStack'te tanımlı ağları çeken kaynak
+data "openstack_networking_network_v2" "all_networks" {
   region = "RegionOne"
 }
 
-resource "openstack_networking_network_v2" "cinar_public_network" {
-  name          = "cinar-public"
-  admin_state_up = true
-  shared        = true
-  external      = false
-  provider_network_type = "vxlan"
-  availability_zone_hints = []
-  availability_zones = [
-    "nova"
-  ]
-  provider_segmentation_id = 65591
-}
+# İlk ağı almak için sıralama ve indeksleme
+# locals {
+#   first_network = data.openstack_networking_network_v2.all_networks[0]
+# }
 
-resource "openstack_networking_subnet_v2" "cinar_public_subnet" {
-  name            = "cinar-public-subnet"
-  network_id      = openstack_networking_network_v2.cinar_public_network.id
-  cidr            = "10.10.20.0/24"
-  ip_version      = 4
-  enable_dhcp     = true
-  gateway_ip      = "10.10.20.1"
-  dns_nameservers = [
-    "8.8.8.8"
-  ]
-  allocation_pools {
-    start = "10.10.20.2"
-    end   = "10.10.20.200"
+# İlk ağı ekrana yazan çıktı
+# output "ilk_ağ" {
+#   # value = openstack_networking_network_v2.all_networks
+#   value = {
+#     network = local.first_network
+#   }
+# }
+
+# Tüm ağları tek tek yazdırmak için for_each kullanımı
+# output "all_networks" {
+#   value = {
+#     for network_id in data.openstack_networking_network_v2.all_networks.*.id : network_id => data.openstack_networking_network_v2.all_networks[network_id]
+#   }
+# }
+
+
+# Print first two networks in all_networks with for_each
+output "first_two_networks" {
+  value = {
+      # cem = data.openstack_networking_network_v2.all_networks.*.id[0]
+      # instance_id = each.value
+    for network_id in slice(keys(data.openstack_networking_network_v2.all_networks), 0, 2) : 
+    network_id => data.openstack_networking_network_v2.all_networks[network_id]
   }
 }
+
+
+# Çekilen ağları ve alt ağları ekrana yazan çıktı
+# output "networks_and_subnets" {
+#   value = {
+#     network = data.openstack_networking_network_v2.single_network
+#     # networks = data.openstack_networking_network_v2.all_networks
+
+#     # networks = data.openstack_networking_networks_v2.all_networks.names
+#     # subnets  = data.openstack_networking_subnets_v2.all_subnets.cidrs
+#     # subnets  = data.openstack_networking_subnet_ids_v2.all_subnets.cidrs
+#   }
+# }

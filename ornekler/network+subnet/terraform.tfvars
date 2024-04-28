@@ -1,0 +1,5 @@
+openstack_auth_url     = "http://openstack-vto.ulakhaberlesme.com.tr/"
+openstack_username     = "cemtopkaya"
+openstack_password     = "******"
+openstack_tenant_name  = "osmtest"
+openstack_region       = "RegionOne"

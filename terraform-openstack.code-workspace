@@ -41,12 +41,29 @@
         "args": "username password Development ramazan.tokay --log-level ERROR"
       },
       {
-        "name": "Debug check_user_resource_quota.py",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${file}",
-        "console": "integratedTerminal",
-        "args": "username password Development ramazan.tokay --log-level ERROR"
+        // Use IntelliSense to learn about possible attributes.
+        // Hover to view descriptions of existing attributes.
+        // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+        "version": "0.2.0",
+        "configurations": [
+          {
+            "name": "Launch a test function",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${fileDirname}",
+            "env": {
+              "PKG_NAME": "${relativeFileDirname}"
+            },
+            "args": [
+              "-test.v",
+              "-test.run",
+              "^${selectedText}$"
+            ],
+            "showLog": true,
+            "envFile": "${workspaceFolder}/.vscode/private.env"
+          }
+        ]
       },
       {
         "name": "Debug server_address.py",

@@ -4,7 +4,7 @@
 # Değişkenlerin tanımlanması
 user_email="cem.topkaya@ulakhaberlesme.com.tr"
 user_id="cem.topkaya"
-vm_user_pass="q1w2e3r4"
+vm_user_pass="******"
 BUILD_NUMBER="$((RANDOM % 1001))"
 openstack_project_name="development"
 openstack_availability_zone="TempVmZone"
