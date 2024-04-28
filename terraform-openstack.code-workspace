@@ -6,7 +6,10 @@
     }
   ],
   "extensions": {
-    "recommendations": [      
+    "recommendations": [
+      "erd0s.terraform-autocomplete",
+      "hashicorp.terraform",
+      "run-at-scale.terraform-doc-snippets",
       "ms-vscode-remote.vscode-remote-extensionpack",
       "MS-vsliveshare.vsliveshare",
       "4ops.terraform",

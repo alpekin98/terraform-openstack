@@ -1,0 +1,1 @@
+* Openstack ortamında kullanıcı bilgilerini çeken bir örnek yazıldı (`/workspace/ornekler/kullanıcı doğrulama`)
