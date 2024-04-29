@@ -9,17 +9,17 @@
 	// Uncomment the next line to run commands after the container is created.
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
 	"workspaceFolder": "/workspace",
-	"postCreateCommand": "pip install -r .devcontainer/requirements.txt && echo complete -C /usr/local/bin/terraform terraform >> ~/.bashrc",
+	"postCreateCommand": "/bin/bash /workspace/.devcontainer/",
+
 	// "initializeCommand": "",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
-	// Configure tool-specific properties.
-	// "customizations": {},
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 	// "image": "hashicorp/terraform",
+	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
 			"settings": {
