@@ -59,6 +59,7 @@ Ancak `TF_LOG=DEBUG` ile göreceğimiz veri daha geniş:
 
 
 ## Komutlar
+`hostname` Bilgisini komut satırında veriyorum ancak `*.tfvars` dosyalarında belirtebiliriz
 
 ```shell
 clear
