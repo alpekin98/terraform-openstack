@@ -22,7 +22,7 @@ body:
                         "domain": {
                             "name": "Default"
                         },
-                        "password": "q1w2e3r4"
+                        "password": "******"
                     }
                 }
             }

@@ -57,6 +57,13 @@ Ancak `TF_LOG=DEBUG` ile göreceğimiz veri daha geniş:
 }
 ```
 
+API üzerinden verileri okumak için:
+```shell
+curl --request GET \
+  --url http://controller:8774/v2.1/os-hypervisors/detail \
+  --header 'X-Auth-Token: gAAAAABmLwWOqhwY8hWqP6kSkazfLZ2oggyAD8LrNSRtLxLbVT1joqf9fP44YNclCe-8rEAo1KELIYs0PE-Q07vPmBo7OKw8SE0bG5QbzrY2df3jCP0fovzaQ5L6Ysc6Xsf2-f3yj6RYJQCJ17G8H0IRJPYIhLq_C3kuFspzv0Hq46OKHqhuPWA'
+```
+
 
 ## Komutlar
 `hostname` Bilgisini komut satırında veriyorum ancak `*.tfvars` dosyalarında belirtebiliriz

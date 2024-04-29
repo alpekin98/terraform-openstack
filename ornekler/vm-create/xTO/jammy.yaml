@@ -1,8 +1,8 @@
 #cloud-config
-password: ${vm_pass}
+password: ${vm_user_pass}
 chpasswd: { expire: False }
 ssh_pwauth: True
-hostname: ${vm_uname}
+hostname: ${vm_name}
 manage_etc_hosts: true
 
 write_files:
@@ -23,7 +23,8 @@ write_files:
       echo "############################################ GELISTIRICIYE NOT #####################################################"
       echo ""
       echo "* Eğer makineyi yeni oluşturduysanız, programların tam olarak kurulabilmesi için yaklaşık 10 dakika bekleyin!"
-      echo "* Arka planda programların kurulumunu izlemek için /var/log/cloud-init-output.log dosyasına bakabilirsiniz."
+      echo "* Arka planda programların kurulumunu izlemek için aşağıdaki komutla günlük kayılarına bakabilirsiniz."
+      echo "* sudo tail -f /var/log/cloud-init-output.log"
       echo "* Programlar kurulduktan sonra makineyi kullanmaya başlayabilirsiniz."
       echo ""
       echo "####################################################################################################################"
@@ -31,59 +32,44 @@ write_files:
   - path: /etc/netplan/new-config.yaml
     permissions: '0644'
     content: |
+      #!/bin/bash
       network:
-          version: 2
-          ethernets:
-            ens3:
-              routes:
-                - to: default
-                  via: ${fipp}
-              dhcp4: true
-              nameservers:
-                  addresses:
-                  - 8.8.8.8
+        version: 2
+        ethernets:
+          ens3:
+            dhcp4: true
+            nameservers:
+              addresses:
+              - 8.8.8.8
+          ens4:
+            dhcp4: true
+            dhcp4-overrides:
+                use-routes: false
+          ens5:
+            dhcp4: true
+            dhcp4-overrides:
+                use-routes: false
+          ens6:
+            dhcp4: true
+            dhcp4-overrides:
+                use-routes: false
+          ens7:
+            dhcp4: true
+            dhcp4-overrides:
+                use-routes: false
 
-  - path: /var/cache/installation_test.sh
+  - path: /var/cache/docker_install.sh
     owner: root:root
     permissions: '0755'
     content: |
       #!/bin/bash
-      echo "############################################ INSTALLATION START ####################################################"
-
-      # disable daemon notification
-      sed -i 's/#$nrconf{restart} = '\''i'\'';/$nrconf{restart} = '\''a'\'';/g' /etc/needrestart/needrestart.conf
-
-      # added ulak nameserver
-      sudo sed -i 's/^nameserver .*/nameserver 192.168.10.12/' /etc/resolv.conf
-
-      # Zaman dilimi ayarlanıyor
-      echo "############################################ SETTING DATE/TIME #####################################################"
-      sudo timedatectl set-ntp yes
-      sudo timedatectl set-timezone "Asia/Istanbul"
-
-      # added new user
-      echo "############################################ USER CONFIG START #####################################################"
-
-      useradd -m -s /usr/bin/bash ${vm_uname}
-      echo ${vm_uname}:${vm_pass} | sudo chpasswd
-      # /etc/sudoers.d/${vm_uname} Dosyasını yaratarak sudoers dosyasında yapılacak bir hatanın önüne geçiyoruz
-      # echo "${vm_uname}  ALL=(ALL) NOPASSWD:ALL" | sudo tee --append /etc/sudoers.d/kullanici
-      echo "${vm_uname}  ALL=(ALL:ALL) ALL" | sudo tee --append /etc/sudoers
-      echo ${fipp}
-      echo ${nfs_ip}
-      echo "############################################ USER CONFIG END #######################################################"
-
-      echo "############################################ COMMON SOFTWARE INSTALLATION START ####################################"
-
-      apt-get update -y
-      apt-get upgrade -y
-      apt-get install -y apt-transport-https curl wget ca-certificates software-properties-common net-tools vim git build-essential sshpass nfs-common
-
-      echo "############################################ COMMON SOFTWARE INSTALLATION END ######################################"
-
-      # docker installation 
       echo "-------------------------------------------- DOCKER INSTALLATION START ---------------------------------------------"
-
+      apt-get install \
+          ca-certificates \
+          curl \
+          gnupg \
+          lsb-release -y
+        
       install -m 0755 -d /etc/apt/keyrings
       curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
       chmod a+r /etc/apt/keyrings/docker.asc
@@ -93,8 +79,9 @@ write_files:
         sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
       apt-get update
-
       apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+      sudo usermod -aG docker ${vm_user_name}
 
       cat <<EOF | sudo tee /etc/docker/daemon.json
       {
@@ -107,16 +94,44 @@ write_files:
         "storage-driver": "overlay2"
       }
       EOF
-      sudo systemctl enable docker
-      sudo systemctl daemon-reload
-      sudo systemctl start docker
       sudo systemctl restart docker
 
-      echo "############################################ DOCKER INSTALLATION ENDED #############################################"
+      echo "____________________________________________________________________________________________ DOCKER INSTALLATION END"
 
-      #k8s 
+  - path: /var/cache/kubernetes_install.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      echo "-------------------------------------------- K8S INSTALLATION STARTED ----------------------------------------------"
+      # Docker'ın altındaki bir motor olan containerd sayesinde konteyner işlemleri yapılır
+      # Kurmak için aşağıdaki paketleri ve depo adresini ekleyerek paket listesini güncelleyeceğiz
+      apt-get install \
+          ca-certificates \
+          curl \
+          gnupg \
+          lsb-release -y
+        
+      install -m 0755 -d /etc/apt/keyrings
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      chmod a+r /etc/apt/keyrings/docker.asc
+      echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-      echo "############################################ K8S INSTALLATION STARTED ##############################################"
+      apt-get update
+      apt install containerd.io -y
+      rm /etc/containerd/config.toml
+      sudo systemctl restart containerd
+      # containerd Kuruldu,  kubernetes kurulumuna devam edeceğiz
+      # İşletim sistemi sistemlerinin RAM'miş gibi kullanmaya çalıştığı sabit sürücülerdeki takas alanını biliyor olabilirsiniz.
+      # İşletim sistemleri, daha acil görevler için RAM'de yer açmak amacıyla daha az erişilen verileri takas alanına taşımaya çalışır.
+      # Ancak takastaki verilere erişim, RAM'deki verilere erişimden çok daha yavaştır çünkü sabit sürücüler RAM'den daha yavaştır.
+      # Kubernetes, mevcut kaynakların anlaşılmasına dayalı olarak çalışmayı planlar.
+      # İş yükleri takas kullanmaya başlarsa Kubernetes'in doğru planlama kararları alması zorlaşabilir.
+      # Bu nedenle Kubernetes'i kurmadan önce takasın devre dışı bırakılması önerilir.
+
       swapoff -a
       sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
@@ -133,108 +148,28 @@ write_files:
       net.bridge.bridge-nf-call-ip6tables = 1
       net.ipv4.ip_forward                 = 1
       EOL
-
       sysctl --system
 
       mkdir -p /etc/containerd
-
       containerd config default | sudo tee /etc/containerd/config.toml
-
       systemctl restart containerd
 
       mkdir -p /etc/apt/keyrings 
-
       curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-
       echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
       apt update
-
       apt install -y kubelet kubeadm kubectl
-
       apt-mark hold kubelet kubeadm kubectl
 
-      echo "############################################ KUBEADM INIT START ####################################################"
-      containerd config default | sudo tee /etc/containerd/config.toml
-      sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
-      systemctl restart containerd
+      kubectl version
+      kubeadm version
+      kubelet --version
 
-      kubeadm init --pod-network-cidr=10.244.0.0/16 --v=5 --ignore-preflight-errors=all
-      echo "############################################ KUBEADM INIT END ######################################################"
-
-      echo "############################################ KUBECTL MKDIR START ###################################################"
-      sudo mkdir -p /home/${vm_uname}/.kube
-      sudo cp -i /etc/kubernetes/admin.conf /home/${vm_uname}/.kube/config
-      sudo chown ${vm_uname}:${vm_uname} /home/${vm_uname}/.kube/config
-      echo "############################################ KUBECTL MKDIR ENDED ###################################################"
-
-      echo "############################################ KUBECTL ROOT MKDIR START ##############################################"
-      sudo mkdir -p /root/.kube
-      sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
-      sudo chown root:root /root/.kube/config
-      echo "############################################ KUBECTL ROOT MKDIR ENDED ##############################################"
-
-      echo "############################################ KUBECTL MKDIR START ###################################################"
-      sudo mkdir -p /.kube
-      sudo cp -i /etc/kubernetes/admin.conf /.kube/config
-      sudo chown ${vm_uname}:${vm_uname} /.kube/config
-      echo "############################################ KUBECTL MKDIR ENDED ###################################################"
-
-      echo "######### DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG ##########"
-      echo "##### pwd"
-      pwd
-      echo "##### ls"
-      ls
-      echo "##### whoami"
-      whoami
-      echo "##### ls -al"
-      ls -al
-      echo "##### printnev"
-      printenv
-      echo "######### DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG ##########"
-
-      kubectl --kubeconfig /.kube/config apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
-      kubectl --kubeconfig /.kube/config taint nodes --all node-role.kubernetes.io/control-plane-
-
-      echo "############################################ HELM INSTALLATION START ###############################################"
-      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-      chmod +x get_helm.sh      
-      ./get_helm.sh
-      helm repo add chartmuseum http://helmchart.ulakhaberlesme.com.tr
-      helm repo update
-      echo "############################################ HELM INSTALLATION ENDED ###############################################"
-
-      echo "############################################ K8s INSTALLATION ENDED ################################################"
-
-      echo "############################################ DOCKER GROUP START ####################################################"
-      groupadd docker
-      sudo chmod 777 /var/run/docker.sock
-      sudo usermod -aG docker ${vm_uname}
-      echo "############################################ DOCKER GROUP END ######################################################"
-
-      echo "############################################ NFS CONFIGURATION START ###############################################"
-      # Configure NFS to allow data storage from new VM
-      sshpass -p ${nfs_password} ssh -o StrictHostKeyChecking=no ${nfs_username}@${nfs_ip} 'echo "/mnt/nfs ${fipp}(rw,sync,no_root_squash,no_subtree_check)" >> /etc/exports'
-      sshpass -p ${nfs_password} ssh -o StrictHostKeyChecking=no ${nfs_username}@${nfs_ip} 'sudo exportfs -a'
-      echo "############################################ NFS CONFIGURATION END #################################################"
-
-      echo "############################################ CLONE HELMCHART REPO START ############################################"
-      # Clone HelmChart Repository
-      git clone http://${gitlab_token_name}:${gitlab_token}@gitlab.ulakhaberlesme.com.tr/DevOps/5gcn-helmchart.git 5gcn_helmchart
-
-      # Apply NFS Provisioner Pod
-      cd /5gcn_helmchart/nfs-provisioner && kubectl --kubeconfig /.kube/config apply -k .
-      echo "############################################ CLONE HELMCHART REPO END ##############################################"
-
-      echo "############################################ DOCKER REGISTRY ADD START #############################################"
-      perl -i -p0e 's/      \[plugins.\"io.containerd.grpc.v1.cri\".registry.mirrors\]/      [plugins."io.containerd.grpc.v1.cri".registry.mirrors]\n        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.ulakhaberlesme.com.tr"]\n          endpoint = ["http:\/\/registry.ulakhaberlesme.com.tr"]/igs' /etc/containerd/config.toml
-      perl -i -p0e 's/      \[plugins.\"io.containerd.grpc.v1.cri\".registry.configs\]/      [plugins."io.containerd.grpc.v1.cri".registry.configs]\n        [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.ulakhaberlesme.com.tr".tls]\n          insecure_skip_verify = true/igs' /etc/containerd/config.toml
-      systemctl restart containerd
-      echo "############################################ DOCKER REGISTRY ADD END ###############################################"
-
-      echo "############################################ UPDATE BASHRC START ###################################################"
+      echo "-------------------------------------------- ADD KUBERNETES ALIASES START ------------------------------------------"
 
       find /home -type f -name ".bashrc" | while read -r file; do
+        echo 'KUBE_EDITOR="nano"' >> $file
         echo 'alias k="kubectl"' >> $file
         echo 'alias kp="kubectl get pods"' >> $file
         echo 'alias kd="kubectl describe"' >> $file
@@ -251,7 +186,112 @@ write_files:
         echo 'alias kmp="km get pods"' >> $file
         echo 'alias kmd="km describe"' >> $file
         echo 'alias kml="km logs"' >> $file
+      done
 
+      find /root -type f -name ".bashrc" | while read -r file; do
+        echo 'KUBE_EDITOR="nano"' >> $file
+        echo 'alias k="kubectl"' >> $file
+        echo 'alias kp="kubectl get pods"' >> $file
+        echo 'alias kd="kubectl describe"' >> $file
+        echo 'alias kl="kubectl logs"' >> $file
+        echo 'alias kg="kubectl get"' >> $file
+        echo 'alias keit="kubectl exec -it"' >> $file
+
+        echo 'alias k5="kubectl -n $(namespaces=$(kubectl get namespaces -o jsonpath='"'"'{.items[*].metadata.name}'"'"'); for namespace in $namespaces; do if [[ $namespace == *5gcn-deployment* ]]; then echo $namespace; fi; done)"' >> $file
+        echo 'alias k5p="k5 get pods"' >> $file
+        echo 'alias k5d="k5 describe"' >> $file
+        echo 'alias k5l="k5 logs"' >> $file
+
+        echo 'alias km="kubectl -n monitoring"' >> $file
+        echo 'alias kmp="km get pods"' >> $file
+        echo 'alias kmd="km describe"' >> $file
+        echo 'alias kml="km logs"' >> $file
+      done
+
+      echo "_________________________________________________________________________________________ ADD KUBERNETES ALIASES END"
+
+      echo "_______________________________________________________________________________________________ K8s INSTALLATION END"
+
+  - path: /var/cache/kubernetes_cluster_setup.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      echo "-------------------------------------------- KUBEADM CLUSTER SETUP START -------------------------------------------"
+
+      containerd config default | sudo tee /etc/containerd/config.toml
+      sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+      perl -i -p0e 's/      \[plugins.\"io.containerd.grpc.v1.cri\".registry.mirrors\]/      [plugins."io.containerd.grpc.v1.cri".registry.mirrors]\n        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.ulakhaberlesme.com.tr"]\n          endpoint = ["http:\/\/registry.ulakhaberlesme.com.tr"]/igs' /etc/containerd/config.toml
+      perl -i -p0e 's/      \[plugins.\"io.containerd.grpc.v1.cri\".registry.configs\]/      [plugins."io.containerd.grpc.v1.cri".registry.configs]\n        [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.ulakhaberlesme.com.tr".tls]\n          insecure_skip_verify = true/igs' /etc/containerd/config.toml
+      systemctl restart containerd
+
+      echo "-------------------------------------------- KUBEADM INIT START ----------------------------------------------------"
+      sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --v=5 --ignore-preflight-errors=all
+      echo "___________________________________________________________________________________________________ KUBEADM INIT END"
+
+      echo "-------------------------------------------- KUBECTL ${vm_user_name} MKDIR START ---------------------------------------"
+      sudo mkdir -p /home/${vm_user_name}/.kube
+      sudo cp -i /etc/kubernetes/admin.conf /home/${vm_user_name}/.kube/config
+      sudo chown ${vm_user_name}:${vm_user_name} /home/${vm_user_name}/.kube/config
+      echo "____________________________________________________________________________________________ KUBECTL ${vm_user_name} MKDIR END"
+
+      echo "-------------------------------------------- KUBECTL ROOT MKDIR START ----------------------------------------------"
+      sudo mkdir -p /root/.kube
+      sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
+      sudo chown root:root /root/.kube/config
+      echo "____________________________________________________________________________________________ KUBECTL ROOT MKDIR END"
+
+      echo "-------------------------------------------- KUBECTL ROOTPATH MKDIR START ------------------------------------------"
+      sudo mkdir -p /.kube
+      sudo cp -i /etc/kubernetes/admin.conf /.kube/config
+      sudo chown ${vm_user_name}:${vm_user_name} /.kube/config
+      echo "_________________________________________________________________________________________ KUBECTL ROOTPATH MKDIR END"
+
+      echo "-------------------------------------------- KUBECTL NETWORK INSTALL START -----------------------------------------"
+      kubectl --kubeconfig /.kube/config apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+      kubectl --kubeconfig /.kube/config taint nodes --all node-role.kubernetes.io/control-plane-
+      echo "________________________________________________________________________________________ KUBECTL NETWORK INSTALL END"
+
+      echo "-------------------------------------------- UPDATE KUBELET CONFIG START -------------------------------------------"
+      yq eval -i '.spec.containers[0].command += "--service-node-port-range=30000-39000"' /etc/kubernetes/manifests/kube-apiserver.yaml
+      systemctl restart kubelet
+      echo "__________________________________________________________________________________________ UPDATE KUBELET CONFIG END"
+
+      echo "__________________________________________________________________________________________ KUBEADM CLUSTER SETUP END"
+
+  - path: /var/cache/helm_install.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      echo "-------------------------------------------- HELM INSTALLATION START --------------------------------------------"
+      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+      chmod +x get_helm.sh
+      ./get_helm.sh
+      helm repo add chartmuseum http://helmchart.ulakhaberlesme.com.tr
+      helm repo update
+
+      echo "-------------------------------------------- HELM REPO CONFIG START --------------------------------------------"
+
+      mkdir -p /root/.config/helm
+      mkdir -p /root/.cache/helm
+      sudo cp -R /.config/helm/* /root/.config/helm
+      sudo cp -R /.cache/helm/* /root/.cache/helm
+      sudo chmod 777 /root/.config/helm/*
+      sudo chmod 777 /root/.cache/helm/*
+
+      mkdir -p /home/${vm_user_name}/.config/helm
+      mkdir -p /home/${vm_user_name}/.cache/helm
+      sudo cp -R /.config/helm/* /home/${vm_user_name}/.config/helm
+      sudo cp -R /.cache/helm/* /home/${vm_user_name}/.cache/helm
+      sudo chmod 777 /home/${vm_user_name}/.config/helm/*
+      sudo chmod 777 /home/${vm_user_name}/.cache/helm/*
+
+      echo "____________________________________________________________________________________________ HELM REPO CONFIG END"
+
+      echo "-------------------------------------------- ADD HELM ALIASES START --------------------------------------------"
+
+      find /home -type f -name ".bashrc" | while read -r file; do
         echo 'alias hi="helm install"' >> $file
         echo 'alias hu="helm uninstall"' >> $file
 
@@ -265,23 +305,6 @@ write_files:
       done
 
       find /root -type f -name ".bashrc" | while read -r file; do
-        echo 'alias k="kubectl"' >> $file
-        echo 'alias kp="kubectl get pods"' >> $file
-        echo 'alias kd="kubectl describe"' >> $file
-        echo 'alias kl="kubectl logs"' >> $file
-        echo 'alias kg="kubectl get"' >> $file
-        echo 'alias keit="kubectl exec -it"' >> $file
-
-        echo 'alias k5="kubectl -n $(namespaces=$(kubectl get namespaces -o jsonpath='"'"'{.items[*].metadata.name}'"'"'); for namespace in $namespaces; do if [[ $namespace == *5gcn-deployment* ]]; then echo $namespace; fi; done)"' >> $file
-        echo 'alias k5p="k5 get pods"' >> $file
-        echo 'alias k5d="k5 describe"' >> $file
-        echo 'alias k5l="k5 logs"' >> $file
-
-        echo 'alias km="kubectl -n monitoring"' >> $file
-        echo 'alias kmp="km get pods"' >> $file
-        echo 'alias kmd="km describe"' >> $file
-        echo 'alias kml="km logs"' >> $file
-
         echo 'alias hi="helm install"' >> $file
         echo 'alias hu="helm uninstall"' >> $file
 
@@ -293,35 +316,191 @@ write_files:
         echo 'alias h5i="h5 install"' >> $file
         echo 'alias h5u="h5 uninstall"' >> $file
       done
-      echo "############################################ UPDATE BASHRC END #####################################################"
 
-      echo "############################################ UPDATE KUBELET CONFIG START ###########################################"
+      echo "____________________________________________________________________________________________ ADD HELM ALIASES END"
+
+      echo "____________________________________________________________________________________________ HELM INSTALLATION ENDED"
+
+  - path: /var/cache/nfs_configure.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      echo "-------------------------------------------- NFS CONFIGURATION START -----------------------------------------------"
+      # Configure NFS to allow data storage from new VM
+      sshpass -p ${nfs_password} ssh -o StrictHostKeyChecking=no ${nfs_username}@${nfs_ip} 'echo "/mnt/nfs ${fipp}(rw,sync,no_root_squash,no_subtree_check)" >> /etc/exports'
+      sshpass -p ${nfs_password} ssh -o StrictHostKeyChecking=no ${nfs_username}@${nfs_ip} 'sudo exportfs -a'
+      echo "____________________________________________________________________________________________ NFS CONFIGURATION END"
+
+      echo "---------------------------------------------- CLONE HELMCHART REPO START ------------------------------------------"
+      # Clone HelmChart Repository
+      git clone http://${gitlab_token_name}:${gitlab_token}@gitlab.ulakhaberlesme.com.tr/DevOps/5gcn-helmchart.git 5gcn_helmchart
+
+      # Apply NFS Provisioner Pod
+      cd /5gcn_helmchart/nfs-provisioner && kubectl --kubeconfig /.kube/config apply -k .
+      echo "___________________________________________________________________________________________ CLONE HELMCHART REPO END"
+
+  - path: /var/cache/ubuntu_desktop_install.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      echo "-------------------------------------------- UBUNTU-DESKTOP INSTALLATION START -----------------------------------"
+      sudo apt install ubuntu-desktop -y
+      sudo apt install xrdp -y
+      sudo ufw allow 3389
+      sudo reboot
+      echo "__________________________________________________________________________________ UBUNTU-DESKTOP INSTALLATION END"
+
+  - path: /var/cache/installation_test.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      echo "-------------------------------------------- INSTALLATION START ----------------------------------------------------"
+
+      echo "Floating IP: ${fipp}"
+      echo "NFS IP: ${nfs_ip}"
+
+      # disable daemon notification
+      sudo sed -i 's/#$nrconf{restart} = '\''i'\'';/$nrconf{restart} = '\''a'\'';/g' /etc/needrestart/needrestart.conf
+
+      # added ulak nameserver
+      sudo sed -i 's/^nameserver .*/nameserver 192.168.10.12/' /etc/resolv.conf
+
+      # Zaman dilimi ayarlanıyor
+      echo "-------------------------------------------- SETTING DATE/TIME ------------------------------------------------------"
+      sudo timedatectl set-ntp yes
+      sudo timedatectl set-timezone "Asia/Istanbul"
+
+      # added new user
+      echo "-------------------------------------------- USER CONFIG START -----------------------------------------------------"
+      useradd -m -s /usr/bin/bash ${vm_user_name}
+      echo ${vm_user_name}:${vm_user_name} | sudo chpasswd
+
+      # /etc/sudoers.d/${vm_user_name} Dosyasını yaratarak sudoers dosyasında yapılacak bir hatanın önüne geçiyoruz
+      echo "${vm_user_name}  ALL=(ALL:ALL) NOPASSWD:ALL" | sudo tee --append /etc/sudoers
+      [ $? -eq 0 ] && echo "Sudoers command was successful." || echo "Sudoers command failed."
+      echo "____________________________________________________________________________________________________ USER CONFIG END"
+
+      echo "-------------------------------------------- COMMON SOFTWARE INSTALLATION START ------------------------------------"
+
+      apt-get update -y
+      apt-get upgrade -y
+      apt-get install -y ${common_packages}
       wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod +x /usr/local/bin/yq
-      yq eval -i '.spec.containers[0].command += "--service-node-port-range=30000-39000"' /etc/kubernetes/manifests/kube-apiserver.yaml
-      systemctl restart kubelet
-      echo "############################################ UPDATE KUBELET CONFIG END #############################################"
 
-      echo "############################################ HELM REPO CONFIG START ################################################"
-      mkdir -p /root/.config/helm
-      mkdir -p /root/.cache/helm
-      sudo cp -R /.config/helm/* /root/.config/helm
-      sudo cp -R /.cache/helm/* /root/.cache/helm
-      sudo chmod 777 /root/.config/helm/*
-      sudo chmod 777 /root/.cache/helm/*
+      echo "___________________________________________________________________________________ COMMON SOFTWARE INSTALLATION END"
 
-      mkdir -p /home/${vm_uname}/.config/helm
-      mkdir -p /home/${vm_uname}/.cache/helm
-      sudo cp -R /.config/helm/* /home/${vm_uname}/.config/helm
-      sudo cp -R /.cache/helm/* /home/${vm_uname}/.cache/helm
-      sudo chmod 777 /home/${vm_uname}/.config/helm/*
-      sudo chmod 777 /home/${vm_uname}/.cache/helm/*
-      echo "############################################ HELM REPO CONFIG END ##################################################"
+      dockerInstalled=false
+      kubernetesInstalled=false
+      clusterSetup=false
 
-      
-      echo "############################################ INSTALLATION ENDED ####################################################"
+      installDocker=false
+      installKubernetes=false
+      setupKubernetesCluster=false
+      installHelm=false
+      configureNFS=false
+      installDesktop=false
+
+      if [[ "${components}" == *"INSTALL_DOCKER"* ]]; then
+        echo "Docker Installation Enabled."
+        installDocker=true
+      fi
+
+      if [[ "${components}" == *"INSTALL_KUBERNETES"* ]]; then
+        echo "Kubernetes Installation Enabled."
+        installKubernetes=true
+      fi
+
+      if [[ "${components}" == *"SETUP_KUBERNETES_CLUSTER"* ]]; then
+        echo "Kubernetes Cluster Setup Enabled."
+        setupKubernetesCluster=true
+      fi
+
+      if [[ "${components}" == *"CONFIGURE_NFS"* ]]; then
+        echo "NFS Configuration Enabled."
+        configureNFS=true
+      fi
+
+      if [[ "${components}" == *"INSTALL_HELM"* ]]; then
+        echo "Helm Installation Enabled."
+        installHelm=true
+      fi
+
+      if [[ "${components}" == *"UBUNTU_DESKTOP"* ]]; then
+        echo "Ubuntu Desktop Installation Enabled."
+        installDesktop=true
+      fi
+
+      if [[ $installDocker == true ]]; then
+        /var/cache/docker_install.sh
+        dockerInstalled=true
+      else
+        echo "------ Skipping Docker Installation ..."
+      fi
+
+      if [[ $installKubernetes == true ]]; then
+        /var/cache/kubernetes_install.sh
+        kubernetesInstalled=true
+        echo "kubernetesInstalled: $kubernetesInstalled"
+        echo "clusterSetup: $clusterSetup"
+      else
+        echo "------ Skipping Kubernetes Installation ..."
+      fi
+
+      if [[ $setupKubernetesCluster == true ]]; then
+        if [[ $kubernetesInstalled == true ]]; then
+          /var/cache/kubernetes_cluster_setup.sh
+          clusterSetup=true
+        else
+          echo "------ Error: Cluster Setup will abort because Kubernetes is not installed ..."
+          echo "dockerInstalled: $dockerInstalled"
+          echo "kubernetesInstalled: $kubernetesInstalled"
+          echo "clusterSetup: $clusterSetup"
+          exit 1
+        fi
+      else
+        echo "------ Skipping Kubernetes Cluster Setup ..."
+      fi
+
+      if [[ $installHelm == true ]]; then
+        if [[ $kubernetesInstalled == true ]]; then
+          /var/cache/helm_install.sh
+        else
+          echo "------ Error: Helm Installation will abort because Kubernetes is not installed ..."
+          echo "dockerInstalled: $dockerInstalled"
+          echo "kubernetesInstalled: $kubernetesInstalled"
+          echo "clusterSetup: $clusterSetup"
+          exit 1
+        fi
+      else
+        echo "------ Skipping Helm Installation ..."
+      fi
+
+      if [[ $configureNFS == true ]]; then
+        if [[ $kubernetesInstalled == true && $clusterSetup == true ]]; then
+          /var/cache/nfs_configure.sh
+        else
+          echo "------ Error: NFS Configuration will abort because Kubernetes is not installed ..."
+          echo "dockerInstalled: $dockerInstalled"
+          echo "kubernetesInstalled: $kubernetesInstalled"
+          echo "clusterSetup: $clusterSetup"
+          exit 1
+        fi
+      else
+        echo "------ Skipping NFS Configuration ..."
+      fi
+
+      if [[ $installDesktop == true ]]; then
+        /var/cache/ubuntu_desktop_install.sh
+      else
+        echo "------ Skipping Ubuntu Desktop Installation ..."
+      fi
+      echo "_________________________________________________________________________________________________ INSTALLATION ENDED"
 
 runcmd:
   - rm /etc/netplan/50-cloud-init.yaml
   - netplan generate
   - netplan apply
-  - [sh, '/var/cache/installation_test.sh']
+  - bash -x /var/cache/installation_test.sh

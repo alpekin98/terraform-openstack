@@ -1,122 +1,138 @@
-# vars.tf
+# Kullanıcı Bilgileri
 variable "users" {
-  type = list(object({
+  type        = list(object({
     username = string
     password = string
   }))
   default     = []
-  description = "Username to be created on the instance"
+  description = "Yaratılacak kullanıcı adları ve şifreleri. Örneğin: [{ username = 'user1', password = 'password1' }, { username = 'user2', password = 'password2' }]"
 }
 
-variable "jemail" {
-  default = "jenkins@ulakhaberlesme.com.tr"
+variable "vm_user_email" {
+  default     = "cem.topkaya@ulakhaberlesme.com.tr"
+  description = "VM kullanıcısının e-posta adresi"
 }
-variable "jname" {
-  default = "jenkins.deneme"
+
+variable "vm_user_name" {
+  default     = "cem.topkaya"
+  description = "VM kullanıcısının adı"
 }
-variable "jpass" {
-  default = "test123"
+
+variable "vm_user_pass" {
+  default     = "test123"
+  description = "VM kullanıcısının şifresi"
 }
+
+# Sanal Makine Bilgileri
 variable "vm_name" {
-  default = "1"
+  default     = "cem-topkaya-vm"
+  description = "Sanal makinenin adı"
 }
+
 variable "image_name" {
-  default = "Ubuntu22_04"
+  default     = "Ubuntu22_04"
+  description = "Sanal makine görüntüsünün adı"
 }
+
 variable "project_name" {
-  default = "Development"
+  default     = "Development"
+  description = "Proje adı"
 }
+
 variable "flavor_name" {
-  default = "12C_24R_75D"
+  default     = "12C_24R_75D"
+  description = "Sanal makine boyutu"
 }
+
 variable "availability_zone" {
-  default = "TempVMZone"
+  default     = "TempVMZone"
+  description = "Kullanılabilirlik bölgesi"
 }
 
-variable "NFS_IP_ADDRESS" {
-  default = "192.168.57.27"
-}
-variable "NFS_USERNAME" {
-  default = "ulak"
-}
-
-variable "NFS_PASSWORD" {
-  default = "test123"
+# NFS ve GitLab Bilgileri
+variable "nfs_ip_address" {
+  default     = "192.168.57.27"
+  description = "NFS sunucunun IP adresi"
 }
 
-variable "GITLAB_TOKEN_NAME" {
-  default = "Terraform_Token"
+variable "nfs_username" {
+  default     = "ulak"
+  description = "NFS sunucusuna bağlanmak için kullanıcı adı"
 }
 
-variable "GITLAB_TOKEN" {
-  default = "rmyjjygxdpvb3MKzJ6S6"
+variable "nfs_password" {
+  default     = "test123"
+  description = "NFS sunucusuna bağlanmak için şifre"
 }
 
-variable "exp_date" {
-  default = "24h"
+variable "gitlab_token_name" {
+  default     = "Terraform_Token"
+  description = "GitLab token'ın adı"
+}
+
+variable "gitlab_token" {
+  default     = "rmyjjygxdpvb3MKzJ6S6"
+  description = "GitLab token'ı"
+}
+
+# VM'e Ait Diğer Bilgiler
+variable "expiration_date" {
+  default     = "24h"
+  description = "Sanal makinenin son kullanma tarihi"
 }
 
 variable "components" {
-  default = ""
+  default     = ""
+  description = "Kurulacak bileşenler"
 }
 
-variable "openstackName" {
-  default = ""
+variable "common_packages" {
+  default     = ""
+  description = "Kurulacak temel bileşenler"
 }
 
-variable "openstackPassword" {
-  default = ""
+# OpenStack ve Ağ Bilgileri
+variable "openstack_username" {
+  default     = ""
+  description = "OpenStack kullanıcı adı"
 }
 
-variable "openstackAuthUrl" {
-  default = "openstack-sto.ulakhaberlesme.com.tr"
+variable "openstack_password" {
+  default     = ""
+  description = "OpenStack şifresi"
 }
 
-variable "openstackProjectName" {
-  default = ""
+variable "openstack_auth_url" {
+  default     = "openstack-sto.ulakhaberlesme.com.tr"
+  description = "OpenStack yetkilendirme URL'si"
+}
+
+variable "openstack_project_name" {
+  default     = ""
+  description = "OpenStack proje adı"
 }
 
 variable "network_mgmt" {
-  default = ""
+  default     = ""
+  description = "Yönetim ağı"
 }
 
 variable "network_control" {
-  default = ""
+  default     = ""
+  description = "Kontrol ağı"
 }
 
 variable "network_public" {
-  default = ""
+  default     = ""
+  description = "Genel ağ"
 }
 
 variable "network_data" {
-  default = ""
+  default     = ""
+  description = "Veri ağı"
 }
 
 variable "network_floating" {
-  default = ""
-}
-
-locals {
-  users = var.users != [] ? var.users : [
-    {
-      username = "ubuntu"
-      password = "test123"
-    }
-  ]
-  timestamp         = timestamp()
-  current_time      = formatdate("DD-MM-YYYY hh:mm ZZZ", timestamp())
-  expire_date       = formatdate("DD-MM-YYYY hh:mm ZZZ", timeadd(timestamp(), var.exp_date))
-  vm_name           = var.vm_name
-  vm_image          = var.image_name
-  vm_uname          = var.jname
-  vm_pass           = var.jpass
-  nfs_password      = var.NFS_PASSWORD
-  nfs_username      = var.NFS_USERNAME
-  nfs_ip            = var.NFS_IP_ADDRESS
-  gitlab_token_name = var.GITLAB_TOKEN_NAME
-  gitlab_token      = var.GITLAB_TOKEN
-  components        = var.components
-
-  # email = "${var.jemail}" 
-  # ssh = "${var.ssh_key}" 
+  default     = ""
+  description = "Floating ağ"
 }

@@ -24,7 +24,7 @@ body:
                             "domain": {
                                 "id": "default"
                             },
-                            "password": "q1w2e3r4"
+                            "password": "******"
                         }
                     }
                 }

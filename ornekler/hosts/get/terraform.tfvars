@@ -1,6 +1,3 @@
 openstack_project_name = "development"
 openstack_username     = "tempvm_creator"
 openstack_password     = "yok_olmuyor789"
-vm_user_name           = "cem.topkaya"
-vm_user_pass           = "sifre123"
-common_packages        = "apt-transport-https curl wget ca-certificates software-properties-common net-tools vim nano git build-essential sshpass nfs-common htop tree"

@@ -47,7 +47,7 @@ resource "openstack_networking_floatingip_v2" "fip_1" {
 # }
 # Bu komutun işlenmesi halinde Floating IP üretilir ve IP adresi aşağıdaki gibi çekilir:
 output "floating_ip" {
-  value = openstack_networking_floatingip_v2.fip_1.address
+  value = openstack_networking_floatingip_v2.fip_1
 }
 
 # Belirlediğimiz Değişken IP ile kurduğumuz instance ı ilişkilendirelim

@@ -1,7 +1,6 @@
 # Kullanıcı Bilgileri
 variable "hostname" {
   type    = string
-  default = "example-hostname"
   description = "Sanal makine barındıran sunucunun adı"
 }
 

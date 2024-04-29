@@ -16,7 +16,7 @@ provider "openstack" {
   auth_url = "http://controller:5000/v3/"
   # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-api-erisimi.md#kullan%C4%B1c%C4%B1-bilgileri
   user_name = "cemtopkaya"
-  password = "q1w2e3r4"
+  password = "******"
   # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-tennant.md
   tenant_name = "osmtest"
   # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-region.md

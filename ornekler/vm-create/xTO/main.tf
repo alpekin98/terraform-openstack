@@ -1,10 +1,8 @@
-locals {
-  metadata_default = { "managed-by-terraform" = true }
-  tags_default     = ["managed-by-terraform=true"]
-}
-
+# Terraform dosyası için gerekli versiyon belirtilir
 terraform {
   required_version = ">= 1.0.0"
+
+  # Kullanılan sağlayıcılar ve versiyonları belirtilir
   required_providers {
     openstack = {
       source  = "terraform-provider-openstack/openstack"
@@ -13,146 +11,104 @@ terraform {
   }
 }
 
-output "auth_url" {
-  value = var.openstackAuthUrl
-}
-
-# Provider tanımlaması
+# OpenStack sağlayıcısı tanımlanır
 provider "openstack" {
-  # OpenStack credential ayrıntıları
-
-  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-api-erisimi.md
-  # auth_url = "http://" + var.openstackAuthUrl + "/v3/"
-  # auth_url = format("http://%s/v3/", var.openstackAuthUrl)
-  # auth_url = "http://${var.openstackAuthUrl}/v3/"
-  auth_url   = "http://${var.openstackAuthUrl}/v3/"
-
-
-  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-api-erisimi.md#kullan%C4%B1c%C4%B1-bilgileri
-  user_name = var.openstackName
-  password  = var.openstackPassword
-  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-tennant.md
+  # OpenStack kimlik bilgileri
+  auth_url    = var.openstack_auth_url
+  user_name   = var.openstack_username
+  password    = var.openstack_password
   tenant_name = "Development"
-  # https://github.com/cemtopkaya/terraform-openstack/blob/main/OpenStack-region.md
-  region = "RegionOne"
+  region      = "RegionOne"
 }
 
-#Değişken IP havuzundan bir IP adresi belirleyelim
+# Değişken IP havuzundan bir IP adresi belirlemek için kaynak tanımlanır
 resource "openstack_networking_floatingip_v2" "fip_1" {
-  pool = "public"
+  pool = var.network_floating
 }
 
-# resource "openstack_networking_v2" "mgmtip_1" {
-#   pool = "cinar-mgmt"
-# }
+# Bu komutun işlenmesi halinde Floating IP üretilir ve IP adresi aşağıdaki gibi çekilir:
+output "floating_ip" {
+  value = openstack_networking_floatingip_v2.fip_1.address
+}
 
-# data "openstack_compute_keypair_v2" "kp_1" {
-# # Kayıtlı hypervisor'ları listelemek için kullanılır
-#   name = var.ssh_key
-# }
-
-# output "keypair_info" { 
-#   value = { 
-#     name = data.openstack_compute_keypair_v2.kp_1.name 
-#     public_key = data.openstack_compute_keypair_v2.kp_1.public_key 
-#   } 
-# }
-
-data "template_file" "user_data" {
-  template = file("jammy-yeni.yaml")
+# Kullanıcı verileri için şablon dosyası tanımlanır
+data "template_file" "user_data_jammy" {
+  template = file("jammy.yaml")
   vars = {
-    vm_uname = local.vm_uname
-    vm_pass  = local.vm_pass
-    fipp     = "${openstack_networking_floatingip_v2.fip_1.address}"
-    #    mgmtipp           = "${openstack_networking_v2.mgmtip_1.address}"
-    nfs_ip            = local.nfs_ip
-    nfs_password      = local.nfs_password
-    nfs_username      = local.nfs_username
-    gitlab_token_name = local.gitlab_token_name
-    gitlab_token      = local.gitlab_token
-    components        = local.components
+    vm_name           = var.vm_name
+    vm_user_name      = var.vm_user_name
+    vm_user_pass      = var.vm_user_pass
+    fipp              = openstack_networking_floatingip_v2.fip_1.address
+    nfs_ip            = var.nfs_ip_address
+    nfs_password      = var.nfs_password
+    nfs_username      = var.nfs_username
+    gitlab_token_name = var.gitlab_token_name
+    gitlab_token      = var.gitlab_token
+    components        = var.components
+    common_packages   = var.common_packages
   }
 }
 
-data "template_file" "user_data2" {
-  template = file("xenial-yeni.yaml")
+data "template_file" "user_data_xenial" {
+  template = file("xenial.yaml")
   vars = {
-    vm_uname = local.vm_uname
-    vm_pass  = local.vm_pass
-    fipp     = "${openstack_networking_floatingip_v2.fip_1.address}"
-    #    mgmtipp           = "${openstack_networking_floatingip_v2.mgmtip_1.address}"
-    nfs_ip            = local.nfs_ip
-    nfs_password      = local.nfs_password
-    nfs_username      = local.nfs_username
-    gitlab_token_name = local.gitlab_token_name
-    gitlab_token      = local.gitlab_token
-    components        = local.components
+    vm_name           = var.vm_name
+    vm_user_name      = var.vm_user_name
+    vm_user_pass      = var.vm_user_pass
+    fipp              = openstack_networking_floatingip_v2.fip_1.address
+    nfs_ip            = var.nfs_ip_address
+    nfs_password      = var.nfs_password
+    nfs_username      = var.nfs_username
+    gitlab_token_name = var.gitlab_token_name
+    gitlab_token      = var.gitlab_token
+    components        = var.components
+    common_packages   = var.common_packages
   }
 }
 
+# Sanal makine örneği tanımlanır
 resource "openstack_compute_instance_v2" "vm_2" {
-  # VM'in adı
-  name = var.vm_name
-  # VM'in kurulacağı yansının adı
-  image_name = var.image_name
-  # VM'in ayarlarını içeren config
-  flavor_name = var.flavor_name
-  # key_pair = var.ssh_key
+  name              = var.vm_name
+  image_name        = var.image_name
+  flavor_name       = var.flavor_name
   security_groups   = ["default"]
-  availability_zone = "com111"
+  # availability_zone = var.availability_zone
 
-  # network {
-  #   name = "cinar-control"
-  #   # name = "STO-control"
-  # }
-
+  # Sanal makine için ağ bağlantıları tanımlanır
   network {
-    # name = "STO-mgmt"
-    name = "cinar-mgmt"
+    name = var.network_mgmt
   }
 
   network {
-    name = "cinar-control"
-    # name = "STO-control"
+    name = var.network_control
   }
 
   network {
-    # name = "STO-public"
-    name = "cinar-public"
+    name = var.network_public
   }
 
   network {
-    # name = "STO-data"
-    name = "cinar-data"
-  }
-
-  network {
-    # name = "STO-data"
-    name = "cinar-control"
+    name = var.network_data
   }
 
   metadata = {
-    creation_date   = local.current_time
-    expiration_date = local.expire_date
-    email           = var.jemail
-    flavor          = var.flavor_name
-    project_name    = var.project_name
-    created_by      = var.jname
-    assigned_to     = var.jname
-    description     = "${var.jname} dev makinesi"
-    delete_after    = var.exp_date
+    # creation_date   = local.current_time
+    # expiration_date = local.expire_date
+    email        = var.vm_user_email
+    flavor       = var.flavor_name
+    project_name = var.project_name
+    created_by   = var.vm_user_name
+    assigned_to  = var.vm_user_name
+    description  = "${var.vm_user_name} dev makinesi"
+    delete_after = var.expiration_date
   }
 
-  user_data = var.image_name == "xenial-ubuntu-16.04" ? data.template_file.user_data2.rendered : data.template_file.user_data.rendered
+  user_data = var.image_name == "xenial-ubuntu-16.04" ? data.template_file.user_data_xenial.rendered : data.template_file.user_data_jammy.rendered
 }
-resource "openstack_networking_port_v2" "port_1" {
-  network_id = "42486caa-22bf-4b34-9eac-09556ebc9054"
-}
+
 # Belirlediğimiz Değişken IP ile kurduğumuz instance ı ilişkilendirelim
 resource "openstack_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = openstack_networking_floatingip_v2.fip_1.address
   instance_id = openstack_compute_instance_v2.vm_2.id
-  #port_id     = "${openstack_networking_port_v2.port_1.id}"
-  fixed_ip = openstack_compute_instance_v2.vm_2.network.0.fixed_ip_v4
+  fixed_ip    = openstack_compute_instance_v2.vm_2.network.0.fixed_ip_v4
 }
-

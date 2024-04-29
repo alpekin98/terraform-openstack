@@ -25,7 +25,7 @@ clear
 # Değişkenlerin tanımlanması
 openstack_auth_url="http://openstack-sto.ulakhaberlesme.com.tr"
 openstack_username="tempvm_creator"
-openstack_password="***"
+openstack_password="yok_olmuyor789"
 openstack_project_name="development"
 user_name_to_check="cemtopkaya"
 terraform apply \
@@ -45,7 +45,7 @@ clear
 # Ortam değişkenlerinden çeksin diye user_name değişkenini veriyoruz
 export TF_VAR_user_name="cemtopkaya"
 export TF_VAR_openstack_username="tempvm_creator"
-export TF_VAR_openstack_password="***"
+export TF_VAR_openstack_password="yok_olmuyor789"
 
 # Değişkenlerin tanımlanması
 openstack_auth_url="http://openstack-sto.ulakhaberlesme.com.tr"
