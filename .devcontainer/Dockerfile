@@ -3,7 +3,9 @@
 FROM ubuntu:jammy
 
 RUN apt-get update
-RUN apt install -y unzip wget vim tree curl jq
+
+# bash-completion Paketi CLI araçları otomatik tamamlasın diye gerekli
+RUN apt install -y unzip wget vim tree curl jq bash-completion
 
 ################################
 # Install Terraform

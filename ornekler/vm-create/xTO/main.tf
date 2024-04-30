@@ -21,6 +21,7 @@ provider "openstack" {
   region      = "RegionOne"
 }
 
+
 # Değişken IP havuzundan bir IP adresi belirlemek için kaynak tanımlanır
 resource "openstack_networking_floatingip_v2" "fip_1" {
   pool = var.network_floating
@@ -73,6 +74,10 @@ resource "openstack_compute_instance_v2" "vm_2" {
   flavor_name       = var.flavor_name
   security_groups   = ["default"]
   # availability_zone = var.availability_zone
+  availability_zone_hints = "com115"
+  # scheduler_hints {
+  #   target_cell = "com115"
+  # }
 
   # Sanal makine için ağ bağlantıları tanımlanır
   network {

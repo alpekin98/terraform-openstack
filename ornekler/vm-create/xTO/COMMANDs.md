@@ -2,13 +2,21 @@
 
 
 
+## PLAN
 ```shell
 clear
 TF_LOG=DEBUG
 terraform plan -var-file=vto.tfvars
 ```
 
+## DESTROY
+```shell
+clear
+terraform apply -destroy --var-file=vto.tfvars
+```
 
+
+## APPLY
 ```shell
 clear
 export TF_LOG="INFO"
